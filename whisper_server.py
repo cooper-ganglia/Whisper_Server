@@ -13,15 +13,17 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 # Configuration
 folder_to_watch = '/Users/tyler/Desktop/WATCH FOLDER'  # Your specified folder
 openai_api_key = 'YOUR API KEY HERE'  # Your OpenAI key
-client = OpenAI(api_key=openai_api_key)
+client = OpenAI(api_key=openai_api_key)  # ✅ Keep this one
 
 # Check if GPU is available
 device = "cuda" if torch.cuda.is_available() else "cpu"
 logging.info(f"🔄 Using device: {device}")
 
-# Load Whisper model
+# Load Whisper model with FP16 precision ONLY if using a GPU
 model = whisper.load_model("medium").to(device)
-client = OpenAI(api_key=openai_api_key)
+if device == "cuda":
+    model = model.half()  # Convert to FP16 for better performance
+
 
 # File handler class
 class NewFileHandler(FileSystemEventHandler):
